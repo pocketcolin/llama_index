@@ -1,5 +1,6 @@
 """Test response utils."""
 
+import asyncio
 from typing import List
 
 from llama_index.constants import MAX_CHUNK_OVERLAP, MAX_CHUNK_SIZE, NUM_OUTPUTS
@@ -186,7 +187,7 @@ def test_accumulate_response(
     assert str(response) == expected
 
 
-def test_accumulate_response2(
+def test_accumulate_response_async(
     mock_service_context: ServiceContext,
     documents: List[Document],
 ) -> None:
@@ -217,24 +218,27 @@ def test_accumulate_response2(
         service_context=service_context,
         text_qa_template=mock_qa_prompt,
         mode=ResponseMode.ACCUMULATE,
+        use_async=True,
     )
 
-    response = builder.get_response(
-        text_chunks=texts,
-        query_str=query_str,
-        separator="\nWHATEVER~~~~~~",
+    response = asyncio.run(
+        builder.aget_response(
+            text_chunks=texts,
+            query_str=query_str,
+            separator="\nWHATEVER~~~~~~\n",
+        )
     )
     expected = (
         "Response 1: What is?:This\n"
-        "WHATEVER~~~~~~"
+        "WHATEVER~~~~~~\n"
         "Response 2: What is?:is\n"
-        "WHATEVER~~~~~~"
+        "WHATEVER~~~~~~\n"
         "Response 3: What is?:bar\n"
-        "WHATEVER~~~~~~"
+        "WHATEVER~~~~~~\n"
         "Response 4: What is?:This\n"
-        "WHATEVER~~~~~~"
+        "WHATEVER~~~~~~\n"
         "Response 5: What is?:is\n"
-        "WHATEVER~~~~~~"
+        "WHATEVER~~~~~~\n"
         "Response 6: What is?:foo"
     )
     assert str(response) == expected
