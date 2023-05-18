@@ -11,3 +11,4 @@ class ResponseMode(str, Enum):
     GENERATION = "generation"
     NO_TEXT = "no_text"
     ACCUMULATE = "accumulate"
+    COMPACT_ACCUMULATE = "compact_accumulate"
