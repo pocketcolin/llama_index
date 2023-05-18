@@ -9,16 +9,7 @@ Will support different modes, from 1) stuffing chunks into prompt,
 """
 from abc import ABC, abstractmethod
 import logging
-from typing import (
-    Any,
-    Dict,
-    Generator,
-    List,
-    Optional,
-    Sequence,
-    Tuple,
-    cast,
-)
+from typing import Any, Dict, Generator, List, Optional, Sequence, Tuple, cast, Union
 import asyncio
 
 from llama_index.data_structs.data_structs import IndexGraph
@@ -636,7 +627,7 @@ class Accumulate(BaseResponseBuilder):
         query_str: str,
         text_chunks: Sequence[str],
         separator: str = "\n---------------------\n",
-    ) -> str | List[List[Any]]:
+    ) -> Union[str, List[List[Any]]]:
         """Apply the same prompt to text chunks and return responses"""
 
         if self._streaming:
