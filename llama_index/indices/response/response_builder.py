@@ -9,7 +9,16 @@ Will support different modes, from 1) stuffing chunks into prompt,
 """
 from abc import ABC, abstractmethod
 import logging
-from typing import Any, Dict, Generator, List, Optional, Sequence, Tuple, cast
+from typing import (
+    Any,
+    Dict,
+    Generator,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    cast,
+)
 import asyncio
 
 from llama_index.data_structs.data_structs import IndexGraph
@@ -495,10 +504,7 @@ class SimpleSummarize(BaseResponseBuilder):
 
         response: RESPONSE_TEXT_TYPE
         if not self._streaming:
-            (
-                response,
-                formatted_prompt,
-            ) = self._service_context.llm_predictor.predict(
+            (response, formatted_prompt,) = self._service_context.llm_predictor.predict(
                 text_qa_template,
                 context_str=node_text,
             )
@@ -654,7 +660,7 @@ class Accumulate(BaseResponseBuilder):
             for text_chunk in text_chunks
         ]
 
-        outputs: List[Tuple[str, str]] = self.flatten_list(tasks)
+        outputs = self.flatten_list(tasks)
 
         if self._use_async:
             outputs = run_async_tasks(outputs)
