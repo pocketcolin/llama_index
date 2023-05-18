@@ -5,10 +5,7 @@ from typing import List
 
 from llama_index.constants import MAX_CHUNK_OVERLAP, MAX_CHUNK_SIZE, NUM_OUTPUTS
 from llama_index.indices.prompt_helper import PromptHelper
-from llama_index.indices.response.response_builder import (
-    ResponseMode,
-    get_response_builder,
-)
+from llama_index.indices.response import ResponseMode, get_response_builder
 from llama_index.indices.service_context import ServiceContext
 from llama_index.prompts.prompts import QuestionAnswerPrompt, RefinePrompt
 from llama_index.readers.schema.base import Document
@@ -270,7 +267,6 @@ def test_accumulate_response_aget(
         service_context=service_context,
         text_qa_template=mock_qa_prompt,
         mode=ResponseMode.ACCUMULATE,
-        use_async=True,
     )
 
     response = asyncio.run(
