@@ -34,6 +34,7 @@ from llama_index.response.utils import get_response_text
 from llama_index.token_counter.token_counter import llm_token_counter
 from llama_index.types import RESPONSE_TEXT_TYPE
 from llama_index.utils import temp_set_attrs
+from llama_index.async_utils import run_async_tasks
 
 logger = logging.getLogger(__name__)
 
@@ -494,7 +495,10 @@ class SimpleSummarize(BaseResponseBuilder):
 
         response: RESPONSE_TEXT_TYPE
         if not self._streaming:
-            (response, formatted_prompt,) = self._service_context.llm_predictor.predict(
+            (
+                response,
+                formatted_prompt,
+            ) = self._service_context.llm_predictor.predict(
                 text_qa_template,
                 context_str=node_text,
             )
@@ -614,7 +618,16 @@ class Accumulate(BaseResponseBuilder):
     ) -> RESPONSE_TEXT_TYPE:
         """Apply the same prompt to text chunks and return async responses"""
 
-        tasks = self.get_response(query_str, text_chunks, **kwargs)
+        if self._streaming:
+            raise ValueError("Unable to stream in Accumulate response mode")
+
+        tasks = [
+            self._give_responses(
+                query_str,
+                text_chunk,
+            )
+            for text_chunk in text_chunks
+        ]
 
         flattened_tasks = self.flatten_list(tasks)
         outputs = await asyncio.gather(*flattened_tasks)
@@ -641,10 +654,10 @@ class Accumulate(BaseResponseBuilder):
             for text_chunk in text_chunks
         ]
 
-        if self._use_async:
-            return tasks
-
         outputs: List[Tuple[str, str]] = self.flatten_list(tasks)
+
+        if self._use_async:
+            outputs = run_async_tasks(outputs)
 
         return self.format_response(outputs, separator)
 
