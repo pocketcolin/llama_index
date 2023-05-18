@@ -18,7 +18,6 @@ from typing import (
     Sequence,
     Tuple,
     cast,
-    Coroutine,
 )
 import asyncio
 
@@ -676,26 +675,6 @@ class Accumulate(BaseResponseBuilder):
 
         return [
             predictor(
-                text_qa_template,
-                context_str=cur_text_chunk,
-            )
-            for cur_text_chunk in text_chunks
-        ]
-
-    def _give_async_responses(
-        self, query_str: str, text_chunk: str
-    ) -> List[Coroutine[Any, Any, Tuple[str, str]]]:
-        """Give responses given a query and a corresponding text chunk."""
-        text_qa_template = self.text_qa_template.partial_format(query_str=query_str)
-        qa_text_splitter = (
-            self._service_context.prompt_helper.get_text_splitter_given_prompt(
-                text_qa_template, 1
-            )
-        )
-        text_chunks = qa_text_splitter.split_text(text_chunk)
-
-        return [
-            self._service_context.llm_predictor.apredict(
                 text_qa_template,
                 context_str=cur_text_chunk,
             )
